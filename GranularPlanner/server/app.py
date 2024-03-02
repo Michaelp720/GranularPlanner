@@ -96,6 +96,22 @@ def day_by_id(id):
 
 ######## DAY_ROUTINES #########
 
+@app.route('/day_routines', methods = ['POST'])
+def day_routines():
+    try:
+        form_data = request.get_json()
+        new_day_routine = DayRoutine(
+            day_id = form_data['day_id'],
+            routine_id = form_data['routine_id']
+            
+        )
+        db.session.add(new_day_routine)
+        db.session.commit()
+        response = make_response(new_day_routine.to_dict(), 200)
+
+    except ValueError:
+        response = make_response({"errors": ["validation errors"]}, 400)
+    return response
 
 ########## ROUTINES ##########
 
@@ -104,7 +120,7 @@ def routines():
     if request.method == 'GET':
         routines = Routine.query.all()
         routines_dict = [routine.to_dict() for routine in routines]
-        response = make_response(tasks_dict, 200)
+        response = make_response(routines_dict, 200)
     elif request.method == 'POST':
         try:
             form_data = request.get_json()
@@ -164,7 +180,22 @@ def task_by_id(id):
 
 ######## ROUTINE_TASKS #########
 
+@app.route('/routine_tasks', methods = ['POST'])
+def routine_tasks():
+    try:
+        form_data = request.get_json()
+        new_routine_task = RoutineTask(
+            routine_id = form_data['routine_id'],
+            task = form_data['task_id']
+            
+        )
+        db.session.add(new_routine_task)
+        db.session.commit()
+        response = make_response(new_routine_task.to_dict(), 200)
 
+    except ValueError:
+        response = make_response({"errors": ["validation errors"]}, 400)
+    return response
 
 ###### TASKS #######
 
