@@ -102,8 +102,8 @@ def day_routines():
         form_data = request.get_json()
         new_day_routine = DayRoutine(
             day_id = form_data['day_id'],
-            routine_id = form_data['routine_id']
-            
+            routine_id = form_data['routine_id'],
+            position = len(DayRoutine.query.filter(DayRoutine.day_id == form_data['day_id']).all()) #queries DayRoutine to find number of day_routines belonging to that day
         )
         db.session.add(new_day_routine)
         db.session.commit()
@@ -111,6 +111,57 @@ def day_routines():
 
     except ValueError:
         response = make_response({"errors": ["validation errors"]}, 400)
+    return response
+
+@app.route('/day_routine/<int:id>', methods = ['GET', 'PATCH', 'DELETE'])
+def day_routine_by_id(id):
+    dr = DayRoutine.query.filter(DayRoutine.id == id).first()
+    #days_other_routines = query and get all day_routines that belong to this day
+    if dr:
+        if request.method == 'GET':
+            dr_dict = dr.to_dict()
+            response = make_response(dr_dict, 200)
+        elif request.method == 'PATCH': #will only ever change position - save for later
+            pass
+            # try:
+            #     new_position = request.get_json()
+            #     old_position = dr.position
+            #     if new_position < old_position:
+            #         for pos in range(new_position, old_position):
+            #             other_dr = DayRoutine.query.filter(DayRoutine.position == pos).first()
+            #             new_pos = pos + 1
+            #             setattr(other_dr, position, new_pos) #is this how to change an attribute?
+            #     elif old_position < new_position:
+            #         for pos in range(new_position + 1, old_position + 1): #excludes new and includes old
+            #             other_dr = DayRoutine.query.filter(DayRoutine.position == pos).first()
+            #             new_pos = pos - 1
+            #             setattr(other_dr, position, new_pos) #is this how to change an attribute?
+
+            #     setattr(dr, position, new_position) #is this how to change an attribute?
+
+            #     db.session.commit()
+
+            #     response = make_response(dr.to_dict(), 202)
+            # except ValueError:
+            #     response = make_response({"errors": ["validation errors"]}, 400)
+
+        elif request.method == 'DELETE': #needs to update position of all other day_routines that belong to the same day
+            old_position = dr.position
+            after_last_position = len(DayRoutine.query.filter(DayRoutine.day_id == dr.day_id).all())
+            for pos in range (old_position + 1, after_last_position):
+                other_dr = DayRoutine.query.filter(DayRoutine.position == pos).first()
+                new_pos = pos - 1
+                setattr(other_dr, position, new_pos)
+                
+            db.session.delete(dr)
+            db.session.commit()
+
+            response = make_response({}, 204)
+
+    else:
+        response = make_response(
+            {"error": "Day not found"}, 404
+        )
     return response
 
 ########## ROUTINES ##########
@@ -186,15 +237,67 @@ def routine_tasks():
         form_data = request.get_json()
         new_routine_task = RoutineTask(
             routine_id = form_data['routine_id'],
-            task = form_data['task_id']
-            
+            task = form_data['task_id'],
+            position = len(RoutineTask.query.filter(RoutineTask.routine_id == form_data['routine_id']).all()) #queries RoutineTask to find number of routine_tasks belonging to that routine
         )
+
         db.session.add(new_routine_task)
         db.session.commit()
         response = make_response(new_routine_task.to_dict(), 200)
 
     except ValueError:
         response = make_response({"errors": ["validation errors"]}, 400)
+    return response
+
+@app.route('/routine_tasks/<int:id>', methods = ['GET', 'PATCH', 'DELETE'])
+def day_routine_by_id(id):
+    rt = RoutineTask.query.filter(RoutineTask.id == id).first()
+    #days_other_routines = query and get all day_routines that belong to this day
+    if rt:
+        if request.method == 'GET':
+            rt_dict = rt.to_dict()
+            response = make_response(rt_dict, 200)
+        elif request.method == 'PATCH': #will only ever change position - save for later
+            pass
+            # try:
+            #     new_position = request.get_json()
+            #     old_position = rt.position
+            #     if new_position < old_position:
+            #         for pos in range(new_position, old_position):
+            #             other_dr = RoutineTask.query.filter(RoutineTask.position == pos).first()
+            #             new_pos = pos + 1
+            #             setattr(other_dr, position, new_pos) #is this how to change an attribute?
+            #     elif old_position < new_position:
+            #         for pos in range(new_position + 1, old_position + 1): #excludes new and includes old
+            #             other_dr = RoutineTask.query.filter(RoutineTask.position == pos).first()
+            #             new_pos = pos - 1
+            #             setattr(other_dr, position, new_pos) #is this how to change an attribute?
+
+            #     setattr(rt, position, new_position) #is this how to change an attribute?
+
+            #     db.session.commit()
+
+            #     response = make_response(rt.to_dict(), 202)
+            # except ValueError:
+            #     response = make_response({"errors": ["validation errors"]}, 400)
+
+        elif request.method == 'DELETE': #needs to update position of all other day_routines that belong to the same day
+            old_position = rt.position
+            after_last_position = len(RoutineTask.query.filter(RoutineTask.routine_id == rt.routine_id).all())
+            for pos in range (old_position + 1, after_last_position):
+                other_rt = RoutineTask.query.filter(RoutineTask.position == pos).first()
+                new_pos = pos - 1
+                setattr(other_rt, position, new_pos)
+                
+            db.session.delete(rt)
+            db.session.commit()
+
+            response = make_response({}, 204)
+
+    else:
+        response = make_response(
+            {"error": "Day not found"}, 404
+        )
     return response
 
 ###### TASKS #######

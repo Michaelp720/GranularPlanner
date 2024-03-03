@@ -40,6 +40,7 @@ class DayRoutine(db.Model, SerializerMixin):
     name = db.Column(db.String)
     day_id = db.Column(db.Integer, db.ForeignKey('days.id'))
     routine_id = db.Column(db.Integer, db.ForeignKey('routines.id'))
+    position = db.Column(db.Integer)
 
     # Add relationships
     day = db.relationship('Day', back_populates = 'day_routines')
@@ -67,6 +68,7 @@ class RoutineTask(db.Model, SerializerMixin):
     name = db.Column(db.String)
     routine_id = db.Column(db.Integer, db.ForeignKey('routines.id'))
     task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    position = db.Column(db.Integer)
 
     # Add relationships
     routine = db.relationship('Routine', back_populates = 'routine_tasks')
