@@ -187,7 +187,7 @@ def routines():
     return response
 
 @app.route('/routines/<int:id>', methods = ['GET', 'PATCH', 'DELETE'])
-def task_by_id(id):
+def routine_by_id(id):
     routine = Routine.query.filter(Routine.id == id).first()
 
     if routine:
