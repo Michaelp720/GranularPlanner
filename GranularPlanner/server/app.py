@@ -250,7 +250,7 @@ def routine_tasks():
     return response
 
 @app.route('/routine_tasks/<int:id>', methods = ['GET', 'PATCH', 'DELETE'])
-def day_routine_by_id(id):
+def routine_task_by_id(id):
     rt = RoutineTask.query.filter(RoutineTask.id == id).first()
     #days_other_routines = query and get all day_routines that belong to this day
     if rt:
